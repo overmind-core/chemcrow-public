@@ -15,8 +15,8 @@ class ChemCrow:
     def __init__(
         self,
         tools=None,
-        model="claude-3-5-sonnet-20241022",
-        tools_model="claude-3-5-sonnet-20241022",
+        model="claude-sonnet-4-5-20250929",
+        tools_model="claude-sonnet-4-5-20250929",
         temp=0.1,
         max_iterations=40,
         verbose=True,

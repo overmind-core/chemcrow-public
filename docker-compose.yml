@@ -14,3 +14,13 @@ services:
     ports:
       - "8052:5000"
     restart: unless-stopped
+
+  agent:
+    build: .
+    env_file: .env
+    environment:
+      RXN_PREDICT_URL: http://rxnpred:5000/api/v1/run
+      RXN_RETRO_URL: http://retrosynthesis:5000/api/v1/run
+    depends_on:
+      - rxnpred
+      - retrosynthesis

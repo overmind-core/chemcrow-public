@@ -72,13 +72,25 @@ def pubchem_query2smiles(
             )
     if url is None:
         url = "https://pubchem.ncbi.nlm.nih.gov/rest/pug/compound/name/{}/{}"
+    query = query.strip()
     r = requests.get(url.format(query, "property/IsomericSMILES/JSON"))
     # convert the response to a json object
-    data = r.json()
-    # return the SMILES string
     try:
-        smi = data["PropertyTable"]["Properties"][0]["IsomericSMILES"]
-    except KeyError:
+        data = r.json()
+    except ValueError:
+        return "Could not find a molecule matching the text. One possible cause is that the input is incorrect, input one molecule at a time."
+    # return the SMILES string. PubChem has renamed this field over time, so
+    # accept any of the known SMILES property keys.
+    try:
+        props = data["PropertyTable"]["Properties"][0]
+        smi = None
+        for key in ("SMILES", "IsomericSMILES", "CanonicalSMILES", "ConnectivitySMILES"):
+            if key in props:
+                smi = props[key]
+                break
+        if smi is None:
+            raise KeyError("SMILES")
+    except (KeyError, IndexError):
         return "Could not find a molecule matching the text. One possible cause is that the input is incorrect, input one molecule at a time."
     return str(Chem.CanonSmiles(largest_mol(smi)))
 

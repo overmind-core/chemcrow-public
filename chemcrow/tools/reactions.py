@@ -1,9 +1,13 @@
 """Self-hosted reaction tools. Retrosynthesis, reaction forward prediction."""
 
 import json
+import os
 from typing import Optional
 
 import requests
+
+RXN_PREDICT_URL = os.getenv("RXN_PREDICT_URL", "http://localhost:8051/api/v1/run")
+RXN_RETRO_URL = os.getenv("RXN_RETRO_URL", "http://localhost:8052/api/v1/run")
 from langchain.base_language import BaseLanguageModel
 from langchain.schema import HumanMessage
 from langchain.tools import BaseTool
@@ -35,7 +39,7 @@ class RXNPredictLocal(BaseTool):
         """Make api request."""
         try:
             response = requests.post(
-                "http://localhost:8051/api/v1/run",
+                RXN_PREDICT_URL,
                 headers={"Content-Type": "application/json"},
                 data=json.dumps({"smiles": reactants})
             )
@@ -71,7 +75,7 @@ class RXNRetrosynthesisLocal(BaseTool):
     def retrosynthesis(self, reactants: str) -> str:
         """Make api request."""
         response = requests.post(
-            "http://localhost:8052/api/v1/run",
+            RXN_RETRO_URL,
             headers={"Content-Type": "application/json"},
             data=json.dumps({"smiles": reactants})
         )
