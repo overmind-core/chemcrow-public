@@ -8,7 +8,9 @@ app = Flask(__name__)
 @app.route('/api/v1/run', methods=['POST'])
 def rxnfp():
     data = request.get_json()
-    target = data.get("target", [])
+    target = data.get("smiles") or data.get("target")
+    if not target:
+        return jsonify({"error": "Missing smiles field"}), 400
 
     command = ["aizynthcli", "--config", "config.yml", "--smiles", f"{target}"]
 
@@ -22,7 +24,9 @@ def rxnfp():
     with open("trees.json", "r") as f:
         tree = json.load(f)
 
-    return tree
+    if isinstance(tree, list):
+        return jsonify(tree)
+    return jsonify([tree])
 
 
 if __name__ == "__main__":

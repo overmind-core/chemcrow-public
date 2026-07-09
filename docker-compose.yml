@@ -1,0 +1,16 @@
+services:
+  rxnpred:
+    build:
+      context: ./chemcrow/docker/molecular-transformer
+    container_name: chemcrow-rxnpred
+    ports:
+      - "8051:5000"
+    restart: unless-stopped
+
+  retrosynthesis:
+    build:
+      context: ./chemcrow/docker/aizynthfinder
+    container_name: chemcrow-retro
+    ports:
+      - "8052:5000"
+    restart: unless-stopped
