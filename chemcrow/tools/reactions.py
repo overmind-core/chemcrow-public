@@ -1,15 +1,10 @@
 """Self-hosted reaction tools. Retrosynthesis, reaction forward prediction."""
 
-import abc
-import ast
-import re
-from time import sleep
+import json
 from typing import Optional
 
 import requests
-
-import json
-from langchain.chat_models import ChatOpenAI
+from langchain.base_language import BaseLanguageModel
 from langchain.schema import HumanMessage
 from langchain.tools import BaseTool
 
@@ -57,7 +52,11 @@ class RXNRetrosynthesisLocal(BaseTool):
         "Obtain the synthetic route to a chemical compound. "
         "Takes as input the SMILES of the product, returns recipe."
     )
-    openai_api_key: str = ""
+    llm: Optional[BaseLanguageModel] = None
+
+    def __init__(self, llm: Optional[BaseLanguageModel] = None):
+        super().__init__()
+        self.llm = llm
 
     def _run(self, reactants: str) -> str:
         """Run reaction prediction."""
@@ -101,13 +100,8 @@ class RXNRetrosynthesisLocal(BaseTool):
 
     def _summary_gpt(self, json: dict) -> str:
         """Describe synthesis."""
-        llm = ChatOpenAI(  # type: ignore
-            temperature=0.05,
-            model_name="gpt-3.5-turbo-16k",
-            request_timeout=2000,
-            max_tokens=2000,
-            openai_api_key=self.openai_api_key,
-        )
+        if self.llm is None:
+            raise ValueError("LLM is required for retrosynthesis summarization.")
         prompt = (
             "Here is a chemical synthesis described as a json.\nYour task is "
             "to describe the synthesis, as if you were giving instructions for"
@@ -119,4 +113,4 @@ class RXNRetrosynthesisLocal(BaseTool):
             "However avoid references to it. \nFor this task, give as many "
             f"details as possible.\n {str(json)}"
         )
-        return llm([HumanMessage(content=prompt)]).content
+        return self.llm([HumanMessage(content=prompt)]).content

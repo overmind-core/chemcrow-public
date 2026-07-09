@@ -8,7 +8,8 @@ import paperscraper
 from langchain import SerpAPIWrapper
 from langchain.base_language import BaseLanguageModel
 from langchain.tools import BaseTool
-from langchain.embeddings.openai import OpenAIEmbeddings
+
+from chemcrow.llm import make_embeddings
 from pypdf.errors import PdfReadError
 
 from chemcrow.utils import is_multiple_smiles, split_smiles
@@ -54,7 +55,7 @@ def scholar2result_llm(llm, query, k=5, max_sources=2, openai_api_key=None, sema
     docs = paperqa.Docs(
         llm=llm,
         summary_llm=llm,
-        embeddings=OpenAIEmbeddings(openai_api_key=openai_api_key),
+        embeddings=make_embeddings(openai_api_key=openai_api_key),
     )
     not_loaded = 0
     for path, data in papers.items():

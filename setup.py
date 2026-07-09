@@ -22,6 +22,8 @@ setup(
         "rdkit",
         "synspace",
         "openai==0.27.8",
+        "anthropic>=0.25.0",
+        "sentence-transformers",
         "molbloom",
         "paper-qa==1.1.1",
         "google-search-results",

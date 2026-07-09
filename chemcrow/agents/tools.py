@@ -51,12 +51,12 @@ def make_tools(llm: BaseLanguageModel, api_keys: dict = {}, local_rxn: bool=Fals
     if (not local_rxn) and rxn4chem_api_key:
         all_tools += [
             RXNPredict(rxn4chem_api_key),
-            RXNRetrosynthesis(rxn4chem_api_key, openai_api_key),
+            RXNRetrosynthesis(rxn4chem_api_key, llm),
         ]
     elif local_rxn:
         all_tools += [
             RXNPredictLocal(),
-            RXNRetrosynthesisLocal()
+            RXNRetrosynthesisLocal(llm=llm)
         ]
 
     return all_tools
