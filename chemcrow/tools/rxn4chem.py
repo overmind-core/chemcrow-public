@@ -9,6 +9,7 @@ from typing import Optional
 from langchain.base_language import BaseLanguageModel
 from langchain.schema import HumanMessage
 from langchain.tools import BaseTool
+from overmind import observe
 from rxn4chemistry import RXN4ChemistryWrapper  # type: ignore
 
 from chemcrow.utils import is_smiles
@@ -262,6 +263,7 @@ class RXNRetrosynthesis(RXN4Chem):
 
         return json_actions
 
+    @observe("retrosynthesis_summarizer")
     def _summary_gpt(self, json: dict) -> str:
         """Describe synthesis."""
         if self.llm is None:

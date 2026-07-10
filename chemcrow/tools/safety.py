@@ -14,7 +14,12 @@ from langchain.tools import BaseTool
 
 from chemcrow.utils import is_smiles, pubchem_query2smiles, tanimoto
 
-from .prompts import safety_summary_prompt, summary_each_data
+from .prompts import (
+    safety_chunk_summarizer,
+    safety_final_summarizer,
+    safety_summary_prompt,
+    summary_each_data,
+)
 
 
 class MoleculeSafety:
@@ -145,15 +150,13 @@ class MoleculeSafety:
             if self._num_tokens(str(info)) > approx_length:
                 trunc_info = str(info)[:approx_length]
                 llm_output.append(
-                    llm_chain_short.run(
-                        {"data": str(trunc_info), "approx_length": approx_length}
+                    safety_chunk_summarizer(
+                        llm_chain_short, str(trunc_info), approx_length
                     )
                 )
             else:
                 llm_output.append(
-                    llm_chain_short.run(
-                        {"data": str(info), "approx_length": approx_length}
-                    )
+                    safety_chunk_summarizer(llm_chain_short, str(info), approx_length)
                 )
         return llm_output
 
@@ -187,7 +190,7 @@ class SafetySummary(BaseTool):
             return "Molecule not found in Pubchem."
 
         data = self.mol_safety.get_safety_summary(cas)
-        return self.llm_chain.run(" ".join(data))
+        return safety_final_summarizer(self.llm_chain, " ".join(data))
 
     async def _arun(self, cas_number):
         raise NotImplementedError("Async not implemented.")

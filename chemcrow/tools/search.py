@@ -8,6 +8,7 @@ import paperscraper
 from langchain import SerpAPIWrapper
 from langchain.base_language import BaseLanguageModel
 from langchain.tools import BaseTool
+from overmind import observe
 
 from chemcrow.llm import make_embeddings
 from pypdf.errors import PdfReadError
@@ -26,7 +27,8 @@ def paper_scraper(search: str, pdir: str = "query", semantic_scholar_api_key: st
         return {}
 
 
-def paper_search(llm, query, semantic_scholar_api_key=None):
+@observe("paper_query_rewriter")
+def paper_query_rewriter(llm, query):
     prompt = langchain.prompts.PromptTemplate(
         input_variables=["question"],
         template="""
@@ -38,9 +40,13 @@ def paper_search(llm, query, semantic_scholar_api_key=None):
     )
 
     query_chain = langchain.chains.llm.LLMChain(llm=llm, prompt=prompt)
+    return query_chain.run(query)
+
+
+def paper_search(llm, query, semantic_scholar_api_key=None):
     if not os.path.isdir("./query"):  # todo: move to ckpt
         os.mkdir("query/")
-    search = query_chain.run(query)
+    search = paper_query_rewriter(llm, query)
     print("\nSearch:", search)
     papers = paper_scraper(search, pdir=f"query/{re.sub(' ', '', search)}", semantic_scholar_api_key=semantic_scholar_api_key)
     return papers
