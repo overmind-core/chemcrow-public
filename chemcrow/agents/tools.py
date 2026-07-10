@@ -4,9 +4,21 @@ from typing import Any, Optional, Type
 from langchain import agents
 from langchain.base_language import BaseLanguageModel
 from langchain.tools import BaseTool
+from overmind import tool as overmind_tool
 from pydantic import BaseModel
 
 from chemcrow.tools import *
+
+
+def _trace_tool_run(inner: BaseTool) -> None:
+    original_run = inner._run
+    tool_name = inner.name
+
+    @overmind_tool(tool_name)
+    def traced_run(*args, **kwargs):
+        return original_run(*args, **kwargs)
+
+    inner._run = traced_run
 
 
 class RobustTool(BaseTool):
@@ -40,6 +52,7 @@ class RobustTool(BaseTool):
 
 def _robustify(tool: BaseTool) -> RobustTool:
     """Wrap a tool instance, preserving its agent-facing metadata."""
+    _trace_tool_run(tool)
     return RobustTool(
         name=tool.name,
         description=tool.description,

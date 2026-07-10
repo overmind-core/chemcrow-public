@@ -1,4 +1,6 @@
 # flake8: noqa
+from overmind import observe
+
 PREFIX = """
 You are an expert chemist and your task is to respond to the question or
 solve the problem to the best of your ability using the provided tools.
@@ -56,3 +58,8 @@ Solution draft: {agent_ans}
 
 Answer:
 """
+
+
+@observe("rephrase_chain")
+def rephrase_chain(llm_chain, question, agent_ans):
+    return llm_chain.run({"question": question, "agent_ans": agent_ans})

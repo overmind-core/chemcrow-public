@@ -2,12 +2,19 @@ from typing import Optional
 
 from dotenv import load_dotenv
 from langchain import PromptTemplate, chains
+from overmind import entry_point
 from pydantic import ValidationError
 from rmrkl import ChatZeroShotAgent, RetryAgentExecutor
 
 from chemcrow.llm import detect_provider, make_llm
 
-from .prompts import FORMAT_INSTRUCTIONS, QUESTION_PROMPT, REPHRASE_TEMPLATE, SUFFIX
+from .prompts import (
+    FORMAT_INSTRUCTIONS,
+    QUESTION_PROMPT,
+    REPHRASE_TEMPLATE,
+    SUFFIX,
+    rephrase_chain,
+)
 from .tools import make_tools
 
 
@@ -70,6 +77,10 @@ class ChemCrow:
 
         self.rephrase_chain = chains.LLMChain(prompt=rephrase, llm=self.llm)
 
+    def rephrase_answer(self, question, agent_ans):
+        return rephrase_chain(self.rephrase_chain, question, agent_ans)
+
+    @entry_point("ChemCrow")
     def run(self, prompt):
         outputs = self.agent_executor({"input": prompt})
         return outputs["output"]

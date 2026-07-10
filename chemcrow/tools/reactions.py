@@ -11,6 +11,7 @@ RXN_RETRO_URL = os.getenv("RXN_RETRO_URL", "http://localhost:8052/api/v1/run")
 from langchain.base_language import BaseLanguageModel
 from langchain.schema import HumanMessage
 from langchain.tools import BaseTool
+from overmind import observe
 
 from chemcrow.utils import is_smiles
 
@@ -102,6 +103,7 @@ class RXNRetrosynthesisLocal(BaseTool):
         rxns = list(_clean_actions(path))
         return rxns
 
+    @observe("retrosynthesis_summarizer")
     def _summary_gpt(self, json: dict) -> str:
         """Describe synthesis."""
         if self.llm is None:

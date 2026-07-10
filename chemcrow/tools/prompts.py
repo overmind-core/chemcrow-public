@@ -1,3 +1,5 @@
+from overmind import observe
+
 safety_summary_prompt = (
     "Your task is to parse through the data provided and provide a summary of important health, laboratory, and environemntal safety information."
     'Focus on answering the following points, and follow the format "Name: description".'
@@ -14,3 +16,13 @@ summary_each_data = (
     "Please summarize the following, highlighting important information for health, laboratory and environemntal safety."
     "Do not exceed {approx_length} characters. The data is: {data}"
 )
+
+
+@observe("safety_final_summarizer")
+def safety_final_summarizer(llm_chain, data):
+    return llm_chain.run(data)
+
+
+@observe("safety_chunk_summarizer")
+def safety_chunk_summarizer(llm_chain, data, approx_length):
+    return llm_chain.run({"data": str(data), "approx_length": approx_length})

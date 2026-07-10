@@ -19,7 +19,11 @@ import sys
 import traceback
 from http.server import BaseHTTPRequestHandler, HTTPServer
 
+from overmind import init as overmind_init
+
 from chemcrow.agents import ChemCrow
+
+overmind_init(service_name="chemcrow", providers=["openai", "anthropic"])
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 log = logging.getLogger(__name__)
