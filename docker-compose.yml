@@ -17,10 +17,15 @@ services:
 
   agent:
     build: .
+    container_name: chemcrow-agent
     env_file: .env
     environment:
       RXN_PREDICT_URL: http://rxnpred:5000/api/v1/run
       RXN_RETRO_URL: http://retrosynthesis:5000/api/v1/run
+      AGENT_PORT: "8080"
+    ports:
+      - "8080:8080"
     depends_on:
       - rxnpred
       - retrosynthesis
+    restart: unless-stopped
