@@ -49,6 +49,10 @@ services:
       RXN_RETRO_URL: http://retrosynthesis:5000/api/v1/run
       OVERMIND_API_URL: http://host.docker.internal:8000
       OVERMIND_CWD: /app
+      GIT_AUTHOR_NAME: overmind
+      GIT_AUTHOR_EMAIL: overmind@local
+      GIT_COMMITTER_NAME: overmind
+      GIT_COMMITTER_EMAIL: overmind@local
     volumes:
       - .:/app
     extra_hosts:
@@ -57,5 +61,11 @@ services:
       - agent
       - rxnpred
       - retrosynthesis
-    entrypoint: ["sleep", "infinity"]
+    entrypoint:
+      - sh
+      - -c
+      - |
+        git config --global user.name "$${GIT_AUTHOR_NAME:-overmind}"
+        git config --global user.email "$${GIT_AUTHOR_EMAIL:-overmind@local}"
+        exec sleep infinity
     restart: unless-stopped
